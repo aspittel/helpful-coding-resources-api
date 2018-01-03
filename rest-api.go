@@ -1,9 +1,11 @@
 package main
 
 import (
-    "encoding/json"
     "log"
+    "os"
     "net/http"
+    "encoding/json"
+
     "github.com/lib/pq"
     "github.com/gorilla/mux"
     "github.com/jinzhu/gorm"
@@ -26,7 +28,10 @@ var err error
 func main () {
     router := mux.NewRouter()
 
-    db, err = gorm.Open("postgres", "host=localhost user=resourceuser dbname=resources sslmode=disable password=resource")
+    db, err = gorm.Open(
+        "postgres", 
+        "host=" + os.Getenv("HOST") + " user=" + os.Getenv("USER") +
+        " dbname=" + os.Getenv("DBNAME") + " sslmode=disable password=" + os.Getenv("PASSWORD"))
     
     if err != nil {
         panic("failed to connect database")
@@ -40,7 +45,7 @@ func main () {
     router.HandleFunc("/resources/{id}", GetResource).Methods("GET")
     router.HandleFunc("/resources", CreateResource).Methods("POST")
     router.HandleFunc("/resources/{id}", DeleteResource).Methods("DELETE")
-    log.Fatal(http.ListenAndServe(":8000", router))
+    log.Fatal(http.ListenAndServe(":" + os.Getenv("PORT"), router))
 }
 
 func GetResources (w http.ResponseWriter, r *http.Request) {
