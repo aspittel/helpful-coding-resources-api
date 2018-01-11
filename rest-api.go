@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/lib/pq"
+    "github.com/rs/cors"
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
@@ -47,7 +48,9 @@ func main() {
 	router.HandleFunc("/resources", CreateResource).Methods("POST")
 	router.HandleFunc("/resources/{id}", DeleteResource).Methods("DELETE")
 
-	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), router))
+    handler := cors.Default().Handler(router)
+	
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), handler))
 }
 
 func GetResources(w http.ResponseWriter, r *http.Request) {
